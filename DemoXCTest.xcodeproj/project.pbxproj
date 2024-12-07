@@ -29,9 +29,30 @@
 		0BC8E17F2D04496300FF48AE /* DemoXCTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DemoXCTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0104EFE62D0485820088950A /* Exceptions for "DemoXCTest" folder in "DemoXCTestTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DemoXCTest.xcdatamodeld,
+			);
+			target = 0BC8E1742D04496300FF48AE /* DemoXCTestTests */;
+		};
+		0104EFE72D0485820088950A /* Exceptions for "DemoXCTest" folder in "DemoXCTestUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DemoXCTest.xcdatamodeld,
+			);
+			target = 0BC8E17E2D04496300FF48AE /* DemoXCTestUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0BC8E1622D04496100FF48AE /* DemoXCTest */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0104EFE62D0485820088950A /* Exceptions for "DemoXCTest" folder in "DemoXCTestTests" target */,
+				0104EFE72D0485820088950A /* Exceptions for "DemoXCTest" folder in "DemoXCTestUITests" target */,
+			);
 			path = DemoXCTest;
 			sourceTree = "<group>";
 		};
@@ -454,7 +475,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JWKXD469L2;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.demoxctest.DemoXCTestTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -473,7 +494,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JWKXD469L2;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.demoxctest.DemoXCTestTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
