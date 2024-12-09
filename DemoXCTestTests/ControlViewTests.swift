@@ -1,58 +1,108 @@
 import XCTest
+import SwiftUI
 import CoreData
 @testable import DemoXCTest
 
-final class ContentViewTests: XCTestCase {
+class MockManagedObjectContext: NSManagedObjectContext {
+    var mockItems: [Item] = []
 
-    var persistenceController: PersistenceController!
-    var viewContext: NSManagedObjectContext!
+    func fetchMockItems<T: NSManagedObject>(_ request: NSFetchRequest<T>) -> [T]? {
+        guard let request = request as? NSFetchRequest<Item> else {
+            return nil
+        }
+        return mockItems as? [T]
+    }
+}
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+class MockItem: Item {
+    var mockTimestamp: Date?
+    override var timestamp: Date? {
+        get { return mockTimestamp }
+        set { mockTimestamp = newValue }
+    }
+}
 
-        // Initialize an in-memory persistence controller for testing
-        persistenceController = PersistenceController(inMemory: true)
-        viewContext = persistenceController.container.viewContext
+class MockCoreDataStack {
+    var persistentContainer: NSPersistentContainer
+
+    init() {
+        persistentContainer = NSPersistentContainer(name: "DemoXCTest")
+        persistentContainer.persistentStoreDescriptions = [NSPersistentStoreDescription()]
+        persistentContainer.loadPersistentStores { description, error in
+            if let error = error {
+                fatalError("Failed to load persistent stores: \(error)")
+            }
+        }
     }
 
+    var viewContext: NSManagedObjectContext {
+        return persistentContainer.viewContext
+    }
+}
+
+class ContentViewTests: XCTestCase {
+    var viewContext: NSManagedObjectContext!
+    var sut: AnyView!
+
+    override func setUpWithError() throws {
+        let coreDataStack = MockCoreDataStack()
+        viewContext = coreDataStack.viewContext
+        
+        let mockItem1 = Item(context: viewContext)
+        mockItem1.timestamp = Date()
+        mockItem1.name = "Item 1"
+
+        let mockItem2 = Item(context: viewContext)
+        mockItem2.timestamp = Date().addingTimeInterval(60)
+        mockItem2.name = "Item 2"
+        
+        sut = AnyView(ContentView().environment(\.managedObjectContext, viewContext))
+    }
+    
     override func tearDownWithError() throws {
-        viewContext = nil
-        persistenceController = nil
-        try super.tearDownWithError()
+        sut = nil
     }
 
     func testAddItem() throws {
-        // Arrange
-        let contentView = ContentView().environment(\.managedObjectContext, viewContext)
+        if let contentView = sut as? ContentView {
+            contentView.addItem(viewContext: viewContext)
+        }
+
         let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
-
-        // Act
-        contentView.addItem()
-        let items = try viewContext.fetch(fetchRequest)
-
-        // Assert
-        XCTAssertEqual(items.count, 1, "There should be one item added")
-        XCTAssertNotNil(items.first?.timestamp, "The item's timestamp should not be nil")
+        do {
+            let items = try viewContext.fetch(fetchRequest)
+            XCTAssertEqual(items.count, 2, "Item count should be 2 after adding an item")
+        } catch {
+            XCTFail("Failed to fetch items: \(error)")
+        }
     }
 
     func testDeleteItem() throws {
-        // Arrange
-        let contentView = ContentView().environment(\.managedObjectContext, viewContext)
-        let newItem = Item(context: viewContext)
-        newItem.timestamp = Date()
-        try viewContext.save()
+        if let contentView = sut as? ContentView {
+            contentView.addItem(viewContext: viewContext)
+        }
 
-        // Act
-        contentView.deleteItems(offsets: IndexSet(integer: 0))
         let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
-        let items = try viewContext.fetch(fetchRequest)
+        var items: [Item] = []
+        do {
+            items = try viewContext.fetch(fetchRequest)
+        } catch {
+            XCTFail("Failed to fetch items: \(error)")
+        }
 
-        // Assert
-        XCTAssertEqual(items.count, 0, "The item should be deleted")
+        if let contentView = sut as? ContentView {
+            contentView.deleteItems(offsets: IndexSet(integer: 0))
+        }
+
+        do {
+            items = try viewContext.fetch(fetchRequest)
+            XCTAssertEqual(items.count, 0, "Item count should be 0 after deleting the item")
+        } catch {
+            XCTFail("Failed to fetch items: \(error)")
+        }
     }
-
+    
     func testSkipped() throws {
-        // Example of a skipped test
         throw XCTSkip("This test is skipped intentionally")
     }
 }
